@@ -1,10 +1,10 @@
 require("dotenv").config();
-const customError = require("../errors/custom-error");
+const { UnAuthenticated } = require("../errors/index");
 const jwt = require("jsonwebtoken");
 const authMiddleware = async (req, res, next) => {
   const { authorization } = req.headers;
   if (!authorization || !authorization.startsWith("Bearer ")) {
-    throw new customError("No valid token provided", 401);
+    throw new UnAuthenticated("No valid token provided");
   }
 
   const token = authorization.split(" ")[1];
@@ -12,7 +12,7 @@ const authMiddleware = async (req, res, next) => {
     const {id, username } = jwt.verify(token, process.env.JWT_SECRET);
       req.user = { username, id };
   } catch (error) {
-    throw new customError("Not authorized to access this route", 401);
+    throw new UnAuthenticated("Not authorized to access this route");
   }
 
   next();
